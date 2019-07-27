@@ -10,6 +10,7 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\Utils;
+use RuntimeException;
 use const PTHREADS_INHERIT_NONE;
 
 class ChatBroadcaster extends PluginBase implements Listener{
@@ -28,6 +29,9 @@ class ChatBroadcaster extends PluginBase implements Listener{
 	}
 
 	public function registerChatHandler(Closure $handler, int ...$broadcastPorts) : void{
+		if($this->thread !== null){
+			throw new RuntimeException("ChatHandler already registered by another plugin");
+		}
 		Utils::validateCallableSignature(function(string $sender, string $message) : void{}, $handler);
 
 		$sleeper = $this->getServer()->getTickSleeper();
