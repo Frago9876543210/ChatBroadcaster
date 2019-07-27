@@ -30,7 +30,7 @@ use const SOCK_DGRAM;
 
 class UnixSocketThread extends Thread{
 	private const PATH = "/tmp/servers/";
-	private const TPS = 100;
+	private const TPS = 20;
 	private const TIME_PER_TICK = 1 / self::TPS;
 
 	/** @var int */
