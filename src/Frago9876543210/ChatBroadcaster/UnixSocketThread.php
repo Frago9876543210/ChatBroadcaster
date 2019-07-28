@@ -35,8 +35,8 @@ class UnixSocketThread extends Thread{
 
 	/** @var int */
 	private $port;
-	/** @var int[] */
-	private $broadcastPorts;
+	/** @var string[] */
+	private $broadcastFiles;
 	/** @var resource */
 	private $socket;
 	/** @var bool */
@@ -58,7 +58,9 @@ class UnixSocketThread extends Thread{
 			unset($broadcastPorts[$key]);
 			$broadcastPorts = array_values($broadcastPorts);
 		}
-		$this->broadcastPorts = $broadcastPorts;
+		foreach($broadcastPorts as $broadcastPort){
+			$this->broadcastFiles[] = self::PATH . $broadcastPort;
+		}
 		$this->socket = socket_create(AF_UNIX, SOCK_DGRAM, 0);
 
 		@mkdir(self::PATH);
@@ -81,8 +83,8 @@ class UnixSocketThread extends Thread{
 		while($this->isRunning){
 			$nextTick += self::TIME_PER_TICK;
 			if(($broadcast = $this->queue->shift()) !== null){
-				foreach($this->broadcastPorts as $port){
-					if(file_exists($filename = self::PATH . $port)){
+				foreach($this->broadcastFiles as $filename){
+					if(file_exists($filename)){
 						@socket_sendto($this->socket, $broadcast, strlen($broadcast), 0, $filename);
 					}
 				}
