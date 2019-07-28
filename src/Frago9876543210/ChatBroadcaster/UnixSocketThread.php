@@ -9,7 +9,6 @@ use pocketmine\thread\Thread;
 use RuntimeException;
 use Threaded;
 use function array_search;
-use function array_values;
 use function file_exists;
 use function microtime;
 use function mkdir;
@@ -56,7 +55,6 @@ class UnixSocketThread extends Thread{
 		$this->port = $port;
 		if(($key = array_search($port, $broadcastPorts)) !== false){
 			unset($broadcastPorts[$key]);
-			$broadcastPorts = array_values($broadcastPorts);
 		}
 		foreach($broadcastPorts as $broadcastPort){
 			$this->broadcastFiles[] = self::PATH . $broadcastPort;
