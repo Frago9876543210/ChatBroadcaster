@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Frago9876543210\ChatBroadcaster;
 
 use pocketmine\snooze\SleeperNotifier;
-use pocketmine\thread\Thread;
 use RuntimeException;
+use Thread;
 use Threaded;
 use function array_search;
 use function file_exists;
@@ -75,7 +75,7 @@ class UnixSocketThread extends Thread{
 		$this->queue = new Threaded();
 	}
 
-	protected function onRun() : void{
+	public function run() : void{
 		$nextTick = microtime(true);
 
 		while($this->isRunning){

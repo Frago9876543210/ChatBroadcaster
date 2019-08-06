@@ -21,7 +21,6 @@ class ChatBroadcaster extends PluginBase implements Listener{
 
 	protected function onEnable() : void{
 		self::$instance = $this;
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 
 	public static function getInstance() : self{
@@ -30,22 +29,24 @@ class ChatBroadcaster extends PluginBase implements Listener{
 
 	public function registerChatHandler(Closure $handler, int ...$broadcastPorts) : void{
 		if($this->thread !== null){
-			throw new RuntimeException("ChatHandler already registered by another plugin");
+			throw new RuntimeException("Chat handler already registered by another plugin");
 		}
 		Utils::validateCallableSignature(function(string $sender, string $message) : void{}, $handler);
 
 		$sleeper = $this->getServer()->getTickSleeper();
 		$notifier = new SleeperNotifier();
 
-		$sleeper->addNotifier($notifier, function() use ($handler): void{
+		$sleeper->addNotifier($notifier, function() use ($handler) : void{
 			($handler)($this->thread->sender, $this->thread->message);
-			$this->thread->synchronized(function(UnixSocketThread $thread){
+			$this->thread->synchronized(function(UnixSocketThread $thread) : void{
 				$thread->notify();
 			}, $this->thread);
 		});
 
 		$this->thread = new UnixSocketThread($notifier, $this->getServer()->getPort(), ...$broadcastPorts);
 		$this->thread->start(PTHREADS_INHERIT_NONE);
+
+		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 	}
 
 	/**
